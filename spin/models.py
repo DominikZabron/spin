@@ -8,16 +8,14 @@ from sqlalchemy_utils import UUIDType
 from flask_login import UserMixin
 
 from spin import app
-from settings import DB_URI
 
-app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
 db = SQLAlchemy(app)
 
 
 class User(db.Model, UserMixin):
-    id = Column(UUIDType, primary_key=True, default=uuid.uuid4)
-    username = Column(String(80), unique=True)
-    password = Column(String(255))
+    id = db.Column(UUIDType, primary_key=True, default=uuid.uuid4)
+    username = db.Column(db.String(80), unique=True)
+    password = db.Column(db.String(255))
 
     def __init__(self, username, password):
         self.username = username
