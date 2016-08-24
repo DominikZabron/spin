@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_required, login_user, logout_user
 
 from spin import app
 from models import User
-from forms import LoginForm
+from forms import LoginForm, RegisterForm
 from models import db
 
 login_manager = LoginManager()
@@ -46,4 +46,23 @@ def login():
 def logout():
     logout_user()
     flash('Logged out successfully.')
-    return redirect('login')
+    return redirect(url_for('login'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        if form.password.data == form.password2.data:
+            user = User.query.filter(User.username == form.username.data).first()
+            if user:
+                flash('Username already exists.')
+            else:
+                user = User(form.username.data, form.password.data)
+                db.session.add(user)
+                db.session.commit()
+                login_user(user)
+                return redirect(url_for('play'))
+        else:
+            flash('Passwords do not match.')
+    return render_template('register.html', form=form)
