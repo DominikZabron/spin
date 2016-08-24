@@ -27,6 +27,8 @@ class User(db.Model, UserMixin):
     def __init__(self, username, password):
         self.username = username
         self.password = self.set_password(password)
+        self.eur_account = EurAccount()
+        self.bns_account = BnsAccount()
 
     @staticmethod
     def set_password(password):
@@ -41,7 +43,7 @@ class User(db.Model, UserMixin):
 
 class WalletMixin(object):
     id = Column(Integer, primary_key=True)
-    balance = Column(DECIMAL(12, 2))
+    balance = Column(DECIMAL(12, 2), default=0)
 
     @declared_attr
     def user_id(cls):

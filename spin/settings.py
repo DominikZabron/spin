@@ -1,2 +1,7 @@
+# Database connection
+
 DB_URI = 'postgresql://username:password@127.0.0.1/spin'
 TEST_DB_URI = 'postgresql://username:password@127.0.0.1/test_spin'
+
+# Bonuses
+LOGIN_BONUS_AMOUNT = 100

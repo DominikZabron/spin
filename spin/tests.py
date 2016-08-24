@@ -4,7 +4,7 @@ from flask_testing import TestCase
 
 from spin import app
 from models import db, User
-from settings import TEST_DB_URI
+from settings import TEST_DB_URI, LOGIN_BONUS_AMOUNT
 
 
 class SpinTestCase(TestCase):
@@ -101,3 +101,10 @@ class SpinTestCase(TestCase):
         ))
         self.assertEqual(response.status_code, 200)
         self.assert_template_used('register.html')
+
+    def test_login_add_bonus(self):
+        prev_balance = self.user.eur_account.balance
+        response = self.login('name', 'pass')
+        self.assertEqual(response.status_code, 200)
+        new_balance = self.user.eur_account.balance
+        self.assertEqual(new_balance, prev_balance + LOGIN_BONUS_AMOUNT)

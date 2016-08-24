@@ -2,6 +2,7 @@
 {% block body %}
 {% if current_user.is_authenticated %}
   Hi {{ current_user.username }}!
+  Your EUR account: {{ current_user.eur_account.balance }}
 {% else %}
   You are not authenticated yet!
 {% endif %}

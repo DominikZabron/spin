@@ -1,15 +1,20 @@
 from flask import render_template, flash, redirect, url_for
 
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import (
+    LoginManager, login_required, login_user, logout_user, user_logged_in
+)
 
 from spin import app
 from models import User
 from forms import LoginForm, RegisterForm
 from models import db
+from signals import apply_login_bonus
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+user_logged_in.connect(apply_login_bonus)
 
 
 @login_manager.user_loader
@@ -31,8 +36,6 @@ def login():
         if user:
             if user.check_password(form.password.data):
                 login_user(user, remember=True)
-
-                flash('Logged in successfully.')
                 return redirect(url_for('play'))
             else:
                 flash('Wrong password.')
