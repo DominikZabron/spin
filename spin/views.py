@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, request
 
 from flask_login import (
     LoginManager, login_required, login_user, logout_user, user_logged_in,
@@ -11,6 +11,7 @@ from forms import LoginForm, RegisterForm, DepositForm
 from models import db
 from signals import apply_login_bonus
 from utils import transfer_deposit
+from game import game
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -27,7 +28,12 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def play():
-    return render_template('index.html', form=DepositForm())
+    choices = (
+        request.args.get('a', 0),
+        request.args.get('b', 1),
+        request.args.get('c', 2)
+    )
+    return render_template('index.html', form=DepositForm(), choices=choices)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -80,3 +86,12 @@ def deposit():
         amount = form.amount.data
         transfer_deposit(current_user, amount)
     return redirect(url_for('play'))
+
+
+@app.route('/spin')
+def spin():
+    deal = game(current_user)
+    if deal:
+        return redirect(url_for('play', a=deal[0], b=deal[1], c=deal[2]))
+    else:
+        return redirect(url_for('play'))

@@ -3,8 +3,8 @@ from flask import url_for
 from flask_testing import TestCase
 
 from spin import app
-from models import db, User
-from settings import (
+from ..models import db, User
+from ..settings import (
     TEST_DB_URI, LOGIN_BONUS_AMOUNT, DEPOSIT_BONUS_AMOUNT,
     DEPOSIT_BONUS_CONDITION
 )

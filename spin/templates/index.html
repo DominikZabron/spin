@@ -1,11 +1,19 @@
 {% extends "base.html" %}
 {% block body %}
 {% if current_user.is_authenticated %}
-  Hi {{ current_user.username }}!
-  Your EUR account: {{ current_user.eur_account.balance }}
-  Your BNS account: {{ current_user.bns_account.balance }}
   <div>
-    <form method="POST" action="/deposit">
+    Hi {{ current_user.username }}!
+    Your EUR account: {{ current_user.eur_account.balance }}
+    Your BNS account: {{ current_user.bns_account.balance }}
+  </div>
+  <div>
+    {% for choice in choices %}
+      <div>{{ choice }}</div>
+    {% endfor %}
+    <button><a href="{{ url_for('spin') }}">Spin</a></button>
+  </div>
+  <div>
+    <form method="POST" action="{{ url_for('deposit') }}">
         {{ form.csrf_token }}
         <div>{{ form.amount.label }}: {{ form.amount(class="css_class") }}</div>
         <input type="submit" value="Deposit"/>
