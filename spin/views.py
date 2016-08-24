@@ -1,14 +1,16 @@
 from flask import render_template, flash, redirect, url_for
 
 from flask_login import (
-    LoginManager, login_required, login_user, logout_user, user_logged_in
+    LoginManager, login_required, login_user, logout_user, user_logged_in,
+    current_user
 )
 
 from spin import app
 from models import User
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, DepositForm
 from models import db
 from signals import apply_login_bonus
+from utils import transfer_deposit
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -25,7 +27,7 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def play():
-    return render_template('index.html')
+    return render_template('index.html', form=DepositForm())
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -69,3 +71,12 @@ def register():
         else:
             flash('Passwords do not match.')
     return render_template('register.html', form=form)
+
+
+@app.route('/deposit', methods=['POST'])
+def deposit():
+    form = DepositForm()
+    if form.validate_on_submit():
+        amount = form.amount.data
+        transfer_deposit(current_user, amount)
+    return redirect(url_for('play'))

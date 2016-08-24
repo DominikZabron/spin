@@ -1,6 +1,6 @@
 from flask_wtf import Form
-from wtforms import StringField
-from wtforms.validators import DataRequired
+from wtforms import StringField, DecimalField
+from wtforms.validators import DataRequired, NumberRange
 from wtforms.widgets import PasswordInput
 
 
@@ -24,4 +24,13 @@ class RegisterForm(Form):
         'confirm password',
         validators=[DataRequired()],
         widget=PasswordInput()
+    )
+
+
+class DepositForm(Form):
+    amount = DecimalField(
+        'amount',
+        validators=[DataRequired(), NumberRange(0, 1000000)],
+        places=12,
+        rounding=2
     )

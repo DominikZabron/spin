@@ -3,6 +3,14 @@
 {% if current_user.is_authenticated %}
   Hi {{ current_user.username }}!
   Your EUR account: {{ current_user.eur_account.balance }}
+  Your BNS account: {{ current_user.bns_account.balance }}
+  <div>
+    <form method="POST" action="/deposit">
+        {{ form.csrf_token }}
+        <div>{{ form.amount.label }}: {{ form.amount(class="css_class") }}</div>
+        <input type="submit" value="Deposit"/>
+    </form>
+  </div>
 {% else %}
   You are not authenticated yet!
 {% endif %}

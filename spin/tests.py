@@ -4,7 +4,10 @@ from flask_testing import TestCase
 
 from spin import app
 from models import db, User
-from settings import TEST_DB_URI, LOGIN_BONUS_AMOUNT
+from settings import (
+    TEST_DB_URI, LOGIN_BONUS_AMOUNT, DEPOSIT_BONUS_AMOUNT,
+    DEPOSIT_BONUS_CONDITION
+)
 
 
 class SpinTestCase(TestCase):
@@ -108,3 +111,38 @@ class SpinTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         new_balance = self.user.eur_account.balance
         self.assertEqual(new_balance, prev_balance + LOGIN_BONUS_AMOUNT)
+
+    def test_deposit(self):
+        self.login('name', 'pass')
+        prev_balance = self.user.eur_account.balance
+        deposit_amount = 22
+        response = self.client.post(url_for('deposit'), data=dict(
+            amount=deposit_amount
+        ), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_template_used('index.html')
+        db.session.refresh(self.user)
+        new_balance = self.user.eur_account.balance
+        self.assertEqual(new_balance, prev_balance + deposit_amount)
+
+    def test_deposit_with_bonus(self):
+        self.login('name', 'pass')
+        prev_balance = self.user.bns_account.balance
+        deposit_amount = DEPOSIT_BONUS_CONDITION + 1
+        self.client.post(url_for('deposit'), data=dict(
+            amount=deposit_amount
+        ), follow_redirects=True)
+        db.session.refresh(self.user)
+        new_balance = self.user.bns_account.balance
+        self.assertEqual(new_balance, prev_balance + DEPOSIT_BONUS_AMOUNT)
+
+    def test_deposit_without_bonus(self):
+        self.login('name', 'pass')
+        prev_balance = self.user.bns_account.balance
+        deposit_amount = DEPOSIT_BONUS_CONDITION - 1
+        self.client.post(url_for('deposit'), data=dict(
+            amount=deposit_amount
+        ), follow_redirects=True)
+        db.session.refresh(self.user)
+        new_balance = self.user.bns_account.balance
+        self.assertEqual(new_balance, prev_balance)
