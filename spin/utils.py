@@ -47,6 +47,10 @@ def pay_out_win(user, currency, bet, win):
 
 
 def convert_bns_to_eur(user, bet):
+    """Make bonus money available in real currency account during each wager.
+
+    Conversion amount is controlled by wagering requirement setting.
+    """
     if user.bns_account.balance > 0:
         convert_amount = Decimal(bet) / WAGERING_REQUIREMENT
         if convert_amount > user.bns_account.balance:
