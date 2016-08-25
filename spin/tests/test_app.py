@@ -1,4 +1,5 @@
-from mock import Mock, patch
+from mock import patch
+from decimal import Decimal
 
 from flask import url_for
 
@@ -8,7 +9,7 @@ from spin import app
 from ..models import db, User
 from ..settings import (
     TEST_DB_URI, LOGIN_BONUS_AMOUNT, DEPOSIT_BONUS_AMOUNT,
-    DEPOSIT_BONUS_CONDITION, BET_AMOUNT, WIN_AMOUNT
+    DEPOSIT_BONUS_CONDITION, BET_AMOUNT, WIN_AMOUNT, WAGERING_REQUIREMENT
 )
 
 
@@ -203,3 +204,33 @@ class SpinTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.user.eur_account.balance, 0)
         self.assertEqual(self.user.bns_account.balance, 0)
+
+    @patch('spin.game.draw')
+    def test_convert_bns_win(self, draw_mock):
+        draw_mock.return_value = (2, 2, 2)
+        self.login('name', 'pass')
+        bns_amount = 123
+        self.user.bns_account.balance = bns_amount
+        prev_value = self.user.eur_account.balance
+        response = self.client.get(url_for('spin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location.split('/')[-1], '?a=2&c=2&b=2')
+        new_value = self.user.eur_account.balance
+        expected = prev_value + WIN_AMOUNT + \
+            BET_AMOUNT / Decimal(WAGERING_REQUIREMENT)
+        self.assertEqual(new_value, expected)
+
+    @patch('spin.game.draw')
+    def test_convert_bns_loose(self, draw_mock):
+        draw_mock.return_value = (1, 0, 0)
+        self.login('name', 'pass')
+        bns_amount = 123
+        self.user.bns_account.balance = bns_amount
+        prev_value = self.user.eur_account.balance
+        response = self.client.get(url_for('spin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location.split('/')[-1], '?a=1&c=0&b=0')
+        new_value = self.user.eur_account.balance
+        expected = prev_value - BET_AMOUNT + \
+            BET_AMOUNT / Decimal(WAGERING_REQUIREMENT)
+        self.assertEqual(new_value, expected)

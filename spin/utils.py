@@ -1,7 +1,10 @@
+from decimal import Decimal
+
 from flask import flash
 
 from models import db
 from bonuses import deposit_bonus
+from settings import WAGERING_REQUIREMENT
 
 
 def transfer_deposit(user, amount):
@@ -16,6 +19,7 @@ def transfer_deposit(user, amount):
 def collect_bet(user, amount):
     if user.eur_account.balance >= amount:
         user.eur_account.balance -= amount
+        convert_bns_to_eur(user, amount)
         currency = 'EUR'
     elif user.bns_account.balance >= amount:
         user.bns_account.balance -= amount
@@ -40,3 +44,12 @@ def pay_out_win(user, currency, bet, win):
         flash('Error. Unrecognized currency.')
     db.session.add(user)
     db.session.commit()
+
+
+def convert_bns_to_eur(user, bet):
+    if user.bns_account.balance > 0:
+        convert_amount = Decimal(bet) / WAGERING_REQUIREMENT
+        if convert_amount > user.bns_account.balance:
+            convert_amount = user.bns_account.balance
+        user.bns_account.balance -= convert_amount
+        user.eur_account.balance += convert_amount
