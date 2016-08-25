@@ -1,3 +1,5 @@
+from mock import Mock, patch
+
 from flask import url_for
 
 from flask_testing import TestCase
@@ -6,7 +8,7 @@ from spin import app
 from ..models import db, User
 from ..settings import (
     TEST_DB_URI, LOGIN_BONUS_AMOUNT, DEPOSIT_BONUS_AMOUNT,
-    DEPOSIT_BONUS_CONDITION
+    DEPOSIT_BONUS_CONDITION, BET_AMOUNT, WIN_AMOUNT
 )
 
 
@@ -146,3 +148,58 @@ class SpinTestCase(TestCase):
         db.session.refresh(self.user)
         new_balance = self.user.bns_account.balance
         self.assertEqual(new_balance, prev_balance)
+
+    @patch('spin.game.draw')
+    def test_win(self, draw_mock):
+        draw_mock.return_value = (0, 0, 0)
+        self.login('name', 'pass')
+        prev_value = self.user.eur_account.balance
+        response = self.client.get(url_for('spin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location.split('/')[-1], '?a=0&c=0&b=0')
+        new_value = self.user.eur_account.balance
+        self.assertEqual(new_value, prev_value + WIN_AMOUNT)
+
+    @patch('spin.game.draw')
+    def test_loose(self, draw_mock):
+        draw_mock.return_value = (2, 1, 0)
+        self.login('name', 'pass')
+        prev_value = self.user.eur_account.balance
+        response = self.client.get(url_for('spin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location.split('/')[-1], '?a=2&c=0&b=1')
+        new_value = self.user.eur_account.balance
+        self.assertEqual(new_value, prev_value - BET_AMOUNT)
+
+    @patch('spin.game.draw')
+    def test_win_bonus(self, draw_mock):
+        draw_mock.return_value = (1, 1, 1)
+        self.login('name', 'pass')
+        self.user.eur_account.balance = 0
+        self.user.bns_account.balance = 100
+        response = self.client.get(url_for('spin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location.split('/')[-1], '?a=1&c=1&b=1')
+        new_value = self.user.bns_account.balance
+        self.assertEqual(new_value, 100 + WIN_AMOUNT)
+
+    @patch('spin.game.draw')
+    def test_loose_bonus(self, draw_mock):
+        draw_mock.return_value = (0, 1, 2)
+        self.login('name', 'pass')
+        self.user.eur_account.balance = 0
+        self.user.bns_account.balance = 100
+        response = self.client.get(url_for('spin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location.split('/')[-1], '?a=0&c=2&b=1')
+        new_value = self.user.bns_account.balance
+        self.assertEqual(new_value, 100 - BET_AMOUNT)
+
+    def test_empty_account(self):
+        self.login('name', 'pass')
+        self.user.eur_account.balance = 0
+        self.user.bns_account.balance = 0
+        response = self.client.get(url_for('spin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.user.eur_account.balance, 0)
+        self.assertEqual(self.user.bns_account.balance, 0)

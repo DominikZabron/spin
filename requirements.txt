@@ -8,3 +8,4 @@ SQLAlchemy-Utils==0.32.9
 psycopg2==2.6.2
 Flask-WTF==0.12
 blinker==1.4
+mock==2.0.0
