@@ -2,21 +2,18 @@
 {% block body %}
 {% if current_user.is_authenticated %}
   <div>
-    Hi {{ current_user.username }}!
-    Your EUR account: {{ current_user.eur_account.balance }}
-    Your BNS account: {{ current_user.bns_account.balance }}
+    {% for choice in choices %}
+      <span><img src="/static/images/{{ choice }}.jpg" style="width:200px;height:300px;"></span>
+    {% endfor %}
   </div>
   <div>
-    {% for choice in choices %}
-      <div>{{ choice }}</div>
-    {% endfor %}
-    <button><a href="{{ url_for('spin') }}">Spin</a></button>
+    <a href="{{ url_for('spin') }}"><button class="btn btn-success btn-lg">Spin</button></a>
   </div>
   <div>
     <form method="POST" action="{{ url_for('deposit') }}">
         {{ form.csrf_token }}
-        <div>{{ form.amount.label }}: {{ form.amount(class="css_class") }}</div>
-        <input type="submit" value="Deposit"/>
+        <div class="form-group">{{ form.amount.label }}: {{ form.amount(class="css_class") }}</div>
+        <input type="submit" value="Deposit" class="btn btn-default"/>
     </form>
   </div>
 {% else %}

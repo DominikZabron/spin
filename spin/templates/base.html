@@ -1,12 +1,47 @@
 <!doctype html>
-<title>My Application</title>
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-{% block body %}{% endblock %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spin</title>
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<div>
+  <div class="navbar navbar-inverse">
+    <div class="container-fluid">
+      {% if current_user.is_authenticated %}
+        <div class="navbar-header">
+          <p class="navbar-text"><strong>{{ current_user.username }}</strong></p>
+          <p class="navbar-text"><strong>EUR: {{ current_user.eur_account.balance }}</strong></p>
+          <p class="navbar-text"><strong>BNS: {{ current_user.bns_account.balance }}</strong></p>
+        </div>
+        <div class="collapse navbar-collapse">
+          <a class="navbar-text navbar-right" href="{{ url_for('logout') }}"><strong>logout</strong></a>
+        </div>
+      {% else %}
+        <div class="collapse navbar-collapse">
+          <a class="navbar-text navbar-right" href="{{ url_for('login') }}"><strong>login</strong></a>
+          <a class="navbar-text navbar-right" href="{{ url_for('register') }}"><strong>register</strong></a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="container-fluid" style="height:70px">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-success">
+          <ul class=flashes>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+  {% block body %}{% endblock %}
+  <script src="/static/js/jquery-3.1.0.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+</body>
+</html>
