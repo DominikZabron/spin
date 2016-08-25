@@ -7,38 +7,40 @@
   <title>Spin</title>
   <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<div>
-  <div class="navbar navbar-inverse">
-    <div class="container-fluid">
-      {% if current_user.is_authenticated %}
-        <div class="navbar-header">
-          <p class="navbar-text"><strong>{{ current_user.username }}</strong></p>
-          <p class="navbar-text"><strong>EUR: {{ current_user.eur_account.balance }}</strong></p>
-          <p class="navbar-text"><strong>BNS: {{ current_user.bns_account.balance }}</strong></p>
-        </div>
-        <div class="collapse navbar-collapse">
-          <a class="navbar-text navbar-right" href="{{ url_for('logout') }}"><strong>logout</strong></a>
-        </div>
-      {% else %}
-        <div class="collapse navbar-collapse">
-          <a class="navbar-text navbar-right" href="{{ url_for('login') }}"><strong>login</strong></a>
-          <a class="navbar-text navbar-right" href="{{ url_for('register') }}"><strong>register</strong></a>
-        </div>
-      {% endif %}
+<body>
+  <div>
+    <div class="navbar navbar-inverse">
+      <div class="container-fluid">
+        {% if current_user.is_authenticated %}
+          <div class="navbar-header">
+            <p class="navbar-text"><strong>{{ current_user.username }}</strong></p>
+            <p class="navbar-text"><strong>EUR: {{ current_user.eur_account.balance }}</strong></p>
+            <p class="navbar-text"><strong>BNS: {{ current_user.bns_account.balance }}</strong></p>
+          </div>
+          <div class="collapse navbar-collapse">
+            <a class="navbar-text navbar-right" href="{{ url_for('logout') }}"><strong>logout</strong></a>
+          </div>
+        {% else %}
+          <div class="collapse navbar-collapse">
+            <a class="navbar-text navbar-right" href="{{ url_for('login') }}"><strong>login</strong></a>
+            <a class="navbar-text navbar-right" href="{{ url_for('register') }}"><strong>register</strong></a>
+          </div>
+        {% endif %}
+      </div>
     </div>
-  </div>
-  <div class="container-fluid" style="height:70px">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-success">
-          <ul class=flashes>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-          </ul>
-        </div>
-      {% endif %}
-    {% endwith %}
+    <div class="container-fluid" style="height:80px">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="alert alert-success">
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div>
   </div>
   {% block body %}{% endblock %}
   <script src="/static/js/jquery-3.1.0.min.js"></script>

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block body %}
-<form method="POST" action="/login">
+<form class="form-horizontal" method="POST" action="/login">
     {{ form.csrf_token }}
-    <div>{{ form.username.label }}: {{ form.username(class="css_class") }}</div>
-    <div>{{ form.password.label }}: {{ form.password() }}</div>
-    <input type="submit" value="Login" class="btn btn-default"/>
+    <div class="form-group">{{ form.username.label(class="control-label col-sm-2") }} {{ form.username() }}</div>
+    <div class="form-group">{{ form.password.label(class="control-label col-sm-2") }} {{ form.password() }}</div>
+    <input type="submit" value="Login" class="btn btn-default col-sm-offset-2 col-sm-1"/>
 </form>
 {% endblock %}

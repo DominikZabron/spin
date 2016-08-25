@@ -29,7 +29,7 @@ class RegisterForm(Form):
 
 class DepositForm(Form):
     amount = DecimalField(
-        'amount',
+        'euro',
         validators=[DataRequired(), NumberRange(0, 1000000)],
         places=12,
         rounding=2

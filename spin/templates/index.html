@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 {% block body %}
-{% if current_user.is_authenticated %}
-  <div>
-    {% for choice in choices %}
-      <span><img src="/static/images/{{ choice }}.jpg" style="width:200px;height:300px;"></span>
-    {% endfor %}
-  </div>
-  <div>
-    <a href="{{ url_for('spin') }}"><button class="btn btn-success btn-lg">Spin</button></a>
-  </div>
-  <div>
-    <form method="POST" action="{{ url_for('deposit') }}">
-        {{ form.csrf_token }}
-        <div class="form-group">{{ form.amount.label }}: {{ form.amount(class="css_class") }}</div>
-        <input type="submit" value="Deposit" class="btn btn-default"/>
-    </form>
-  </div>
-{% else %}
-  You are not authenticated yet!
-{% endif %}
+<div class="container-fluid">
+    <div class="col-sm-9"
+      {% for choice in choices %}
+        <span><img src="/static/images/{{ choice }}.jpg" class="col-sm-3"></span>
+      {% endfor %}
+    </div>
+    <div class="col-sm-7">
+      <br>
+      <a href="{{ url_for('spin') }}"><button class="btn btn-success btn-lg pull-right col-sm-3">Spin</button></a>
+    </div>
+    <div class="col-sm-offset-3 col-sm-6">
+      <br>
+      <form class="form-horizontal" method="POST" action="{{ url_for('deposit') }}">
+          {{ form.csrf_token }}
+          <div class="form-group">{{ form.amount.label(class="control-label") }} {{ form.amount }}</div>
+          <input type="submit" value="Deposit" class="btn btn-default col-sm-2"/>
+      </form>
+    </div>
+</div>
 {% endblock %}
